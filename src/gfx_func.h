@@ -173,6 +173,10 @@ void SetMouseCursor(CursorID cursor, PaletteID pal);
 void SetAnimatedMouseCursor(std::span<const AnimCursor> table);
 void CursorTick();
 void UpdateCursorSize();
+#ifdef WITH_XR_QUEST
+extern int _cursor_zoom_shift;
+extern bool _cursor_hidden;
+#endif
 bool ChangeResInGame(int w, int h);
 void SortResolutions();
 bool ToggleFullScreen(bool fs);

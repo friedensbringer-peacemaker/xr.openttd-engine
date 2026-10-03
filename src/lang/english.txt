@@ -452,6 +452,76 @@ STR_SETTINGS_MENU_GAMESCRIPT_SETTINGS                           :Game script set
 STR_SETTINGS_MENU_NEWGRF_SETTINGS                               :NewGRF settings
 STR_SETTINGS_MENU_SANDBOX_OPTIONS                               :Sandbox options
 STR_SETTINGS_MENU_TRANSPARENCY_OPTIONS                          :Transparency options
+STR_SETTINGS_MENU_XR_SETTINGS                                   :VR settings
+STR_XR_TAB                                                      :VR
+STR_XR_TAB_TOOLTIP                                              :Settings for the Meta Quest: screen, pointer, controller
+STR_XR_FRAME_SCREEN                                             :Screen
+STR_XR_FRAME_POINTER                                            :Pointer
+STR_XR_FRAME_CONTROLS                                           :Controls
+STR_XR_FRAME_BUTTONS                                            :Buttons
+STR_XR_PANEL_WIDTH                                              :Screen width
+STR_XR_DISTANCE                                                 :Distance
+STR_XR_HEIGHT                                                   :Height
+STR_XR_CURSOR                                                   :Mouse arrow
+STR_XR_NORMAL                                                   :Normal
+STR_XR_METRES                                                   :{DECIMAL} m
+STR_XR_CENTIMETRES                                              :{NUM} cm
+STR_XR_GUI_SCALE                                                :Menu size
+STR_XR_CURVATURE                                                :Screen curvature
+STR_XR_BRIGHTNESS                                               :Brightness
+STR_XR_CONTRAST                                                 :Contrast
+STR_XR_SHARPENING                                               :Image sharpness
+STR_XR_SUPERSAMPLING                                            :Supersampling
+STR_XR_SHARPEN                                                  :Sharpen
+STR_XR_RECENTER                                                 :Recenter screen
+STR_XR_RESET_SIZE                                               :Default size and distance
+STR_XR_POINTER_HAND                                             :Pointer hand
+STR_XR_SMOOTHING                                                :Pointer smoothing
+STR_XR_STABILISATION                                            :Click stabilisation
+STR_XR_HAPTICS                                                  :Vibration on click
+STR_XR_RAY_WIDTH                                                :Ray
+STR_XR_RAY_COLOUR                                               :Ray colour
+STR_XR_MARKER                                                   :Target marker
+STR_XR_MAP_SPEED                                                :Map scroll speed
+STR_XR_ZOOM_DIRECTION                                           :Zoom (left stick)
+STR_XR_SMART_SCROLL                                             :Stick scrolls lists
+STR_XR_QUICK_CAPTION                                            :{WHITE}VR menu
+STR_XR_CONTINUE                                                 :Continue
+STR_XR_RAY_ON                                                   :Ray: on
+STR_XR_RAY_OFF                                                  :Ray: off
+STR_XR_PASSTHROUGH                                              :Passthrough
+STR_XR_PASSTHROUGH_ON                                           :Passthrough: on
+STR_XR_PASSTHROUGH_OFF                                          :Passthrough: off
+STR_XR_UNAVAILABLE                                              :not available
+STR_XR_SAVE_GAME                                                :Save game
+STR_XR_QUIT                                                     :{RED}Quit
+STR_XR_QUIT_ARMED                                               :{WHITE}Sure? Click again to quit
+STR_XR_CLOSE                                                    :Close
+STR_XR_PERCENT                                                  :{NUM}%
+STR_XR_TIMES                                                    :{NUM}x
+STR_XR_OFF                                                      :Off
+STR_XR_ON                                                       :On
+STR_XR_LEFT                                                     :Left
+STR_XR_RIGHT                                                    :Right
+STR_XR_LIGHT                                                    :Light
+STR_XR_STRONG                                                   :Strong
+STR_XR_FLAT                                                     :Flat
+STR_XR_GENTLE                                                   :Gentle
+STR_XR_CURVED                                                   :Curved
+STR_XR_THIN                                                     :Thin
+STR_XR_MEDIUM                                                   :Medium
+STR_XR_THICK                                                    :Thick
+STR_XR_WHITE                                                    :White
+STR_XR_GREY                                                     :Grey
+STR_XR_DARK                                                     :Dark
+STR_XR_AMBER                                                    :Amber
+STR_XR_SMALL                                                    :Small
+STR_XR_LARGE                                                    :Large
+STR_XR_ZOOM_NORMAL                                              :Forward zooms in
+STR_XR_ZOOM_INVERTED                                            :Forward zooms out
+STR_XR_CONTROLS_HELP                                            :Trigger: click · Grip: right click (hold: drag map){}A: confirm · B: back / cancel tool{}X hold: Ctrl · Y hold: fast forward · Menu: VR menu (also stick + A){}Right stick: scroll map or list (press: faster){}Left stick: zoom · Left grip + left stick: screen size / distance{}Press left stick: recenter screen
+STR_XR_RESUME_CAPTION                                           :{WHITE}Continue playing?
+STR_XR_RESUME_TEXT                                              :{YELLOW}The game was paused while the headset was not in use. Continue now?
 STR_SETTINGS_MENU_TOWN_NAMES_DISPLAYED                          :Town names displayed
 STR_SETTINGS_MENU_STATION_NAMES_DISPLAYED                       :Station names displayed
 STR_SETTINGS_MENU_STATION_NAMES_TRAIN                           :Train stations

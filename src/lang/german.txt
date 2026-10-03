@@ -453,6 +453,76 @@ STR_SETTINGS_MENU_GAMESCRIPT_SETTINGS                           :Spielskripteins
 STR_SETTINGS_MENU_NEWGRF_SETTINGS                               :NewGRF-Einstellungen
 STR_SETTINGS_MENU_SANDBOX_OPTIONS                               :Sandkasten-Optionen
 STR_SETTINGS_MENU_TRANSPARENCY_OPTIONS                          :Transparenzeinstellungen
+STR_SETTINGS_MENU_XR_SETTINGS                                   :VR-Einstellungen
+STR_XR_TAB                                                      :VR
+STR_XR_TAB_TOOLTIP                                              :Einstellungen für die Meta Quest: Bildschirm, Zeiger, Controller
+STR_XR_FRAME_SCREEN                                             :Bildschirm
+STR_XR_FRAME_POINTER                                            :Zeiger
+STR_XR_FRAME_CONTROLS                                           :Steuerung
+STR_XR_FRAME_BUTTONS                                            :Tasten
+STR_XR_PANEL_WIDTH                                              :Bildschirmbreite
+STR_XR_DISTANCE                                                 :Abstand
+STR_XR_HEIGHT                                                   :Höhe
+STR_XR_CURSOR                                                   :Mauspfeil
+STR_XR_NORMAL                                                   :Normal
+STR_XR_METRES                                                   :{DECIMAL} m
+STR_XR_CENTIMETRES                                              :{NUM} cm
+STR_XR_GUI_SCALE                                                :Menügröße
+STR_XR_CURVATURE                                                :Wölbung
+STR_XR_BRIGHTNESS                                               :Helligkeit
+STR_XR_CONTRAST                                                 :Kontrast
+STR_XR_SHARPENING                                               :Bildschärfe
+STR_XR_SUPERSAMPLING                                            :Supersampling
+STR_XR_SHARPEN                                                  :Schärfen
+STR_XR_RECENTER                                                 :Bildschirm zentrieren
+STR_XR_RESET_SIZE                                               :Standardgröße und -abstand
+STR_XR_POINTER_HAND                                             :Zeigerhand
+STR_XR_SMOOTHING                                                :Zeigerglättung
+STR_XR_STABILISATION                                            :Klickstabilisierung
+STR_XR_HAPTICS                                                  :Vibration beim Klick
+STR_XR_RAY_WIDTH                                                :Strahl
+STR_XR_RAY_COLOUR                                               :Strahlfarbe
+STR_XR_MARKER                                                   :Zielmarkierung
+STR_XR_MAP_SPEED                                                :Kartentempo
+STR_XR_ZOOM_DIRECTION                                           :Zoom (linker Stick)
+STR_XR_SMART_SCROLL                                             :Stick scrollt Listen
+STR_XR_QUICK_CAPTION                                            :{WHITE}VR-Menü
+STR_XR_CONTINUE                                                 :Weiter
+STR_XR_RAY_ON                                                   :Strahl: An
+STR_XR_RAY_OFF                                                  :Strahl: Aus
+STR_XR_PASSTHROUGH                                              :Passthrough
+STR_XR_PASSTHROUGH_ON                                           :Passthrough: An
+STR_XR_PASSTHROUGH_OFF                                          :Passthrough: Aus
+STR_XR_UNAVAILABLE                                              :nicht verfügbar
+STR_XR_SAVE_GAME                                                :Spiel speichern
+STR_XR_QUIT                                                     :{RED}Beenden
+STR_XR_QUIT_ARMED                                               :{WHITE}Sicher? Nochmal klicken
+STR_XR_CLOSE                                                    :Schließen
+STR_XR_PERCENT                                                  :{NUM} %
+STR_XR_TIMES                                                    :{NUM}×
+STR_XR_OFF                                                      :Aus
+STR_XR_ON                                                       :An
+STR_XR_LEFT                                                     :Links
+STR_XR_RIGHT                                                    :Rechts
+STR_XR_LIGHT                                                    :Leicht
+STR_XR_STRONG                                                   :Stark
+STR_XR_FLAT                                                     :Flach
+STR_XR_GENTLE                                                   :Leicht gewölbt
+STR_XR_CURVED                                                   :Stark gewölbt
+STR_XR_THIN                                                     :Dünn
+STR_XR_MEDIUM                                                   :Mittel
+STR_XR_THICK                                                    :Dick
+STR_XR_WHITE                                                    :Weiß
+STR_XR_GREY                                                     :Grau
+STR_XR_DARK                                                     :Dunkel
+STR_XR_AMBER                                                    :Bernstein
+STR_XR_SMALL                                                    :Klein
+STR_XR_LARGE                                                    :Groß
+STR_XR_ZOOM_NORMAL                                              :Vor = hineinzoomen
+STR_XR_ZOOM_INVERTED                                            :Vor = herauszoomen
+STR_XR_CONTROLS_HELP                                            :Trigger: Klick · Griff: Rechtsklick (halten: Karte ziehen){}A: Bestätigen · B: Zurück / Werkzeug abbrechen{}X halten: Strg · Y halten: Vorspulen · Menütaste: VR-Menü (auch mit Stick + A bedienbar){}Rechter Stick: Karte oder Liste scrollen (drücken: schneller){}Linker Stick: Zoom · Linker Griff + linker Stick: Bildschirmgröße / Abstand{}Linken Stick drücken: Bildschirm zentrieren
+STR_XR_RESUME_CAPTION                                           :{WHITE}Weiterspielen?
+STR_XR_RESUME_TEXT                                              :{YELLOW}Das Spiel wurde pausiert, solange die Brille nicht benutzt wurde. Jetzt weiterspielen?
 STR_SETTINGS_MENU_TOWN_NAMES_DISPLAYED                          :Städtenamen anzeigen
 STR_SETTINGS_MENU_STATION_NAMES_DISPLAYED                       :Stationsnamen anzeigen
 STR_SETTINGS_MENU_STATION_NAMES_TRAIN                           :Bahnhöfe

@@ -45,6 +45,7 @@
 #  include <cstddef>  // std::byte
 #  include <cstdint>  // uint32_t
 #  include <cstring>  // std::memcpy
+#  include <cstdlib>  // std::malloc, std::free (XR-Quest: newer libc++ no longer pulls it in)
 #  include <limits>   // std::numeric_limits
 #  include <new>      // std::bad_alloc
 #  if defined(__GLIBCXX__) && !defined(_GLIBCXX_USE_DUAL_ABI)

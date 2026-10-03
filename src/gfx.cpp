@@ -31,6 +31,21 @@
 
 #include "safeguards.h"
 
+#ifdef WITH_XR_QUEST
+int _cursor_zoom_shift = 0; ///< XR: zoom steps relative to the GUI zoom (+1 smaller, -1 larger mouse arrow).
+bool _cursor_hidden = false; ///< XR: mouse arrow not drawn, the controller ray marks the position.
+#endif
+
+/** Zoom level the mouse cursor sprites are drawn at. */
+static ZoomLevel CursorZoom()
+{
+#ifdef WITH_XR_QUEST
+	return std::clamp(_gui_zoom + _cursor_zoom_shift, ZoomLevel::Min, ZoomLevel::Max);
+#else
+	return _gui_zoom;
+#endif
+}
+
 uint8_t _dirkeys;        ///< 1 = left, 2 = up, 4 = right, 8 = down
 bool _fullscreen;
 uint8_t _support8bpp;
@@ -1359,6 +1374,13 @@ void DrawMouseCursor()
 
 	Blitter *blitter = BlitterFactory::GetCurrentBlitter();
 
+#ifdef WITH_XR_QUEST
+	if (_cursor_hidden) {
+		UndrawMouseCursor();
+		return;
+	}
+#endif
+
 	/* Redraw mouse cursor but only when it's inside the window */
 	if (!_cursor.in_window) return;
 
@@ -1404,7 +1426,7 @@ void DrawMouseCursor()
 	/* Draw cursor on screen */
 	_cur_dpi = &_screen;
 	for (const auto &cs : _cursor.sprites) {
-		DrawSprite(cs.image.sprite, cs.image.pal, _cursor.pos.x + cs.pos.x, _cursor.pos.y + cs.pos.y);
+		DrawSprite(cs.image.sprite, cs.image.pal, _cursor.pos.x + cs.pos.x, _cursor.pos.y + cs.pos.y, nullptr, CursorZoom());
 	}
 
 	VideoDriver::GetInstance()->MakeDirty(_cursor.draw_pos.x, _cursor.draw_pos.y, _cursor.draw_size.x, _cursor.draw_size.y);
@@ -1624,10 +1646,10 @@ void UpdateCursorSize()
 	for (const auto &cs : _cursor.sprites) {
 		const Sprite *p = GetSprite(GB(cs.image.sprite, 0, SPRITE_WIDTH), SpriteType::Normal);
 		Point offs, size;
-		offs.x = UnScaleGUI(p->x_offs) + cs.pos.x;
-		offs.y = UnScaleGUI(p->y_offs) + cs.pos.y;
-		size.x = UnScaleGUI(p->width);
-		size.y = UnScaleGUI(p->height);
+		offs.x = UnScaleByZoom(p->x_offs, CursorZoom()) + cs.pos.x;
+		offs.y = UnScaleByZoom(p->y_offs, CursorZoom()) + cs.pos.y;
+		size.x = UnScaleByZoom(p->width, CursorZoom());
+		size.y = UnScaleByZoom(p->height, CursorZoom());
 
 		if (first) {
 			/* First sprite sets the total. */

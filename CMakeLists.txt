@@ -117,8 +117,17 @@ set(CMAKE_THREAD_PREFER_PTHREAD YES)
 # Make sure we have Threads available.
 find_package(Threads REQUIRED)
 
+if(XR_QUEST)
+    include(XRQuest)
+elseif(XR_DESKTOP_PREVIEW)
+    # VR settings tab only (desktop UI test without headset), see src/video/xr/CMakeLists.txt.
+    add_definitions(-DWITH_XR_QUEST -DXR_DESKTOP_PREVIEW)
+endif()
+
 find_package(ZLIB)
-find_package(LibLZMA)
+if(NOT XR_QUEST)
+    find_package(LibLZMA)
+endif()
 find_package(LZO)
 find_package(PNG)
 
@@ -142,8 +151,12 @@ if(NOT OPTION_DEDICATED)
         find_package(Allegro)
         if(NOT APPLE)
             find_package(Freetype)
-            find_package(SDL2)
-            find_package(Fluidsynth)
+            if(NOT XR_QUEST)
+                find_package(SDL2)
+            endif()
+            if(NOT XR_QUEST)
+                find_package(Fluidsynth)
+            endif()
             if(Freetype_FOUND)
                 find_package(Fontconfig)
             endif()
@@ -237,9 +250,22 @@ include_directories(${CMAKE_SOURCE_DIR}/src/3rdparty/squirrel/include)
 include(MSVCFilters)
 
 add_library(openttd_lib OBJECT ${GENERATED_SOURCE_FILES})
-add_executable(openttd WIN32)
-add_executable(openttd_test)
+if(XR_QUEST)
+    # SDLActivity lädt libmain.so und ruft SDL_main (src/video/xr/xr_android_main.cpp).
+    add_library(openttd SHARED)
+else()
+    add_executable(openttd WIN32)
+endif()
+if(XR_QUEST)
+    # Tests laufen nicht auf der Quest; Ziel bleibt für add_test_files bestehen.
+    add_executable(openttd_test EXCLUDE_FROM_ALL)
+else()
+    add_executable(openttd_test)
+endif()
 set_target_properties(openttd PROPERTIES OUTPUT_NAME "${BINARY_NAME}")
+if(XR_QUEST)
+    set_target_properties(openttd PROPERTIES OUTPUT_NAME main)
+endif()
 # All other files are added via target_sources()
 
 if(MSVC)
@@ -282,13 +308,27 @@ target_link_libraries(openttd
     openttd::basesets
 )
 
+if(XR_QUEST)
+    target_link_libraries(openttd_lib xr_openxr_loader EGL GLESv3 android log)
+    if(XR_ASSET_DIR)
+        # Runtime data (languages, baseset, AI/GS compat) and the free base sets for the APK assets.
+        add_custom_command(TARGET openttd POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -DSRC=${CMAKE_BINARY_DIR} -DFREE=${XR_FREE_BASESETS} -DSOUNDFONT=${XR_SOUNDFONT_DIR} -DOUT=${XR_ASSET_DIR}
+                    -P ${CMAKE_SOURCE_DIR}/cmake/scripts/XRQuestAssets.cmake
+            COMMENT "Staging XR-OpenTTD game data for the APK"
+        )
+    endif()
+endif()
+
 target_link_libraries(openttd_test PRIVATE openttd_lib)
 if(ANDROID)
     target_link_libraries(openttd_test PRIVATE log)
 endif()
 
 include(Catch)
-catch_discover_tests(openttd_test)
+if(NOT XR_QUEST)
+    catch_discover_tests(openttd_test)
+endif()
 
 if(HAIKU)
     target_link_libraries(openttd_lib "be" "network" "midi")

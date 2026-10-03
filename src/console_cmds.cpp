@@ -52,7 +52,56 @@
 
 #include "table/strings.h"
 
+#ifdef WITH_XR_QUEST
+#	include "video/xr/xr_settings_gui.h"
+#	include "zoom_func.h"
+#	include "window_gui.h"
+#	include "gui.h"
+#endif
+
 #include "safeguards.h"
+
+#ifdef WITH_XR_QUEST
+/**
+ * XR-OpenTTD: open and close the game options (general tab and VR tab) at several interface
+ * sizes, so window construction and layout can be checked without a headset.
+ */
+static bool ConXrSelfTest(std::span<std::string_view> argv)
+{
+	if (argv.empty()) {
+		IConsolePrint(CC_HELP, "Open and close the game options incl. VR tab at several interface sizes. Usage: 'xr_selftest'.");
+		return true;
+	}
+	const int previous_scale = _gui_scale_cfg; // the test must not change the player's interface size
+	for (int scale : {100, 200, 300}) {
+		_gui_scale_cfg = scale;
+		AdjustGUIZoom(false);
+		ShowGameOptions();
+		const Window *general = FindWindowById(WC_GAME_OPTIONS, WN_GAME_OPTIONS_GAME_OPTIONS);
+		IConsolePrint(CC_DEFAULT, "xr_selftest scale {}: general tab {}x{}", scale, general ? general->width : -1, general ? general->height : -1);
+		ShowGameOptionsXrTab();
+		const Window *vr = FindWindowById(WC_GAME_OPTIONS, WN_GAME_OPTIONS_GAME_OPTIONS);
+		IConsolePrint(CC_DEFAULT, "xr_selftest scale {}: VR tab {}x{} lowered={}", scale, vr ? vr->width : -1, vr ? vr->height : -1,
+			vr != nullptr && vr->IsWidgetLowered(WID_GO_TAB_XR));
+		for (WidgetID id = WID_GO_XR_FIRST; id < WID_XRS_HELP; ++id) {
+			if (auto text = XrSettingsWidgetString(id); text.has_value()) IConsolePrint(CC_DEFAULT, "xr_selftest   {}", *text);
+		}
+		CloseWindowByClass(WC_GAME_OPTIONS);
+		/* VR quick menu: opens, moves the focus, closes again with the same call (menu button). */
+		ShowXrQuickMenu();
+		const Window *quick = FindWindowByClass(WC_GAME_OPTIONS);
+		IConsolePrint(CC_DEFAULT, "xr_selftest scale {}: quick menu open={} {}x{}", scale, XrQuickMenuOpen(), quick ? quick->width : -1, quick ? quick->height : -1);
+		XrQuickMenuNavigate(1);
+		XrQuickMenuNavigate(-2);
+		ShowXrQuickMenu();
+		IConsolePrint(CC_DEFAULT, "xr_selftest scale {}: quick menu closed={}", scale, !XrQuickMenuOpen());
+	}
+	_gui_scale_cfg = previous_scale;
+	AdjustGUIZoom(false);
+	IConsolePrint(CC_DEFAULT, "xr_selftest OK");
+	return true;
+}
+#endif
 
 /* scriptfile handling */
 static uint _script_current_depth; ///< Depth of scripts running (used to abort execution when #ConReturn is encountered).
@@ -2893,6 +2942,9 @@ void IConsoleStdLibRegister()
 	IConsole::CmdRegister("reset_enginepool",        ConResetEnginePool,  ConHookNoNetwork);
 	IConsole::CmdRegister("return",                  ConReturn);
 	IConsole::CmdRegister("screenshot",              ConScreenShot);
+#ifdef WITH_XR_QUEST
+	IConsole::CmdRegister("xr_selftest",             ConXrSelfTest);
+#endif
 	IConsole::CmdRegister("script",                  ConScript);
 	IConsole::CmdRegister("zoomto",                  ConZoomToLevel);
 	IConsole::CmdRegister("scrollto",                ConScrollToTile);

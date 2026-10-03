@@ -59,6 +59,10 @@
 
 #include "dropdown_common_type.h"
 
+#ifdef WITH_XR_QUEST
+#	include "video/xr/xr_settings_gui.h"
+#endif
+
 #include "safeguards.h"
 
 
@@ -595,6 +599,12 @@ struct GameOptionsWindow : Window {
 
 	std::string GetWidgetString(WidgetID widget, StringID stringid) const override
 	{
+#ifdef WITH_XR_QUEST
+		if (IsXrSettingsWidget(widget)) {
+			if (auto text = XrSettingsWidgetString(widget); text.has_value()) return *text;
+			return this->Window::GetWidgetString(widget, stringid);
+		}
+#endif
 		switch (widget) {
 			case WID_GO_CURRENCY_DROPDOWN: {
 				const CurrencySpec &currency = _currency_specs[this->opt->locale.currency];
@@ -677,6 +687,12 @@ struct GameOptionsWindow : Window {
 
 	void DrawWidget(const Rect &r, WidgetID widget) const override
 	{
+#ifdef WITH_XR_QUEST
+		if (IsXrSettingsWidget(widget)) {
+			XrSettingsDraw(r, widget);
+			return;
+		}
+#endif
 		switch (widget) {
 			case WID_GO_BASE_GRF_DESCRIPTION:
 				DrawStringMultiLine(r, GetString(STR_JUST_RAW_STRING, BaseGraphics::GetUsedSet()->GetDescription(GetCurrentLanguageIsoCode())), GAME_OPTIONS_SELECTED);
@@ -774,6 +790,9 @@ struct GameOptionsWindow : Window {
 	void SetTab(WidgetID widget)
 	{
 		this->SetWidgetsLoweredState(false, WID_GO_TAB_GENERAL, WID_GO_TAB_GRAPHICS, WID_GO_TAB_SOUND, WID_GO_TAB_ADVANCED, WID_GO_TAB_SOCIAL);
+#ifdef WITH_XR_QUEST
+		this->SetWidgetLoweredState(WID_GO_TAB_XR, false);
+#endif
 		this->LowerWidget(widget);
 		GameOptionsWindow::active_tab = widget;
 
@@ -784,6 +803,9 @@ struct GameOptionsWindow : Window {
 			case WID_GO_TAB_SOUND: plane = 2; break;
 			case WID_GO_TAB_SOCIAL: plane = 3; break;
 			case WID_GO_TAB_ADVANCED: plane = 4; break;
+#ifdef WITH_XR_QUEST
+			case WID_GO_TAB_XR: plane = 5; break;
+#endif
 			default: NOT_REACHED();
 		}
 
@@ -833,6 +855,12 @@ struct GameOptionsWindow : Window {
 
 	void UpdateWidgetSize(WidgetID widget, Dimension &size, [[maybe_unused]] const Dimension &padding, [[maybe_unused]] Dimension &fill, [[maybe_unused]] Dimension &resize) override
 	{
+#ifdef WITH_XR_QUEST
+		if (IsXrSettingsWidget(widget)) {
+			XrSettingsUpdateSize(widget, size, padding);
+			return;
+		}
+#endif
 		switch (widget) {
 			case WID_GO_TEXT_SFX_VOLUME:
 			case WID_GO_TEXT_MUSIC_VOLUME: {
@@ -948,12 +976,22 @@ struct GameOptionsWindow : Window {
 			ShowBaseSetTextfileWindow(this, (TextfileType)(widget - WID_GO_BASE_MUSIC_TEXTFILE), BaseMusic::GetUsedSet(), STR_CONTENT_TYPE_BASE_MUSIC);
 			return;
 		}
+#ifdef WITH_XR_QUEST
+		if (IsXrSettingsWidget(widget)) {
+			XrSettingsClick(this, widget);
+			this->SetDirty();
+			return;
+		}
+#endif
 		switch (widget) {
 			case WID_GO_TAB_GENERAL:
 			case WID_GO_TAB_GRAPHICS:
 			case WID_GO_TAB_SOUND:
 			case WID_GO_TAB_ADVANCED:
 			case WID_GO_TAB_SOCIAL:
+#ifdef WITH_XR_QUEST
+			case WID_GO_TAB_XR:
+#endif
 				SndClickBeep();
 				this->SetTab(widget);
 				break;
@@ -1410,6 +1448,13 @@ struct GameOptionsWindow : Window {
 
 	void OnDropdownSelect(WidgetID widget, int index, int) override
 	{
+#ifdef WITH_XR_QUEST
+		if (IsXrSettingsWidget(widget)) {
+			XrSettingsDropdownSelect(widget, index);
+			this->SetDirty();
+			return;
+		}
+#endif
 		switch (widget) {
 			case WID_GO_CURRENCY_DROPDOWN: // Currency
 				if (index == CURRENCY_CUSTOM) ShowCustCurrency();
@@ -1615,6 +1660,9 @@ static constexpr std::initializer_list<NWidgetPart> _nested_game_options_widgets
 			NWidget(WWT_TEXTBTN, GAME_OPTIONS_BUTTON, WID_GO_TAB_SOUND),    SetMinimalTextLines(2, 0), SetStringTip(STR_GAME_OPTIONS_TAB_SOUND, STR_GAME_OPTIONS_TAB_SOUND_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
 			NWidget(WWT_TEXTBTN, GAME_OPTIONS_BUTTON, WID_GO_TAB_SOCIAL),   SetMinimalTextLines(2, 0), SetStringTip(STR_GAME_OPTIONS_TAB_SOCIAL, STR_GAME_OPTIONS_TAB_SOCIAL_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
 			NWidget(WWT_TEXTBTN, GAME_OPTIONS_BUTTON, WID_GO_TAB_ADVANCED), SetMinimalTextLines(2, 0), SetStringTip(STR_GAME_OPTIONS_TAB_ADVANCED, STR_GAME_OPTIONS_TAB_ADVANCED_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
+#ifdef WITH_XR_QUEST
+			NWidget(WWT_TEXTBTN, GAME_OPTIONS_BUTTON, WID_GO_TAB_XR),       SetMinimalTextLines(2, 0), SetStringTip(STR_XR_TAB, STR_XR_TAB_TOOLTIP), SetFill(1, 0), SetResize(1, 0),
+#endif
 		EndContainer(),
 	EndContainer(),
 	NWidget(WWT_PANEL, GAME_OPTIONS_BACKGROUND),
@@ -1831,6 +1879,10 @@ static constexpr std::initializer_list<NWidgetPart> _nested_game_options_widgets
 					NWidget(NWID_VSCROLLBAR, GAME_OPTIONS_BACKGROUND, WID_GO_HELP_TEXT_SCROLL),
 				EndContainer(),
 			EndContainer(),
+#ifdef WITH_XR_QUEST
+			/* VR tab (Meta Quest build) */
+			NWidgetFunction(MakeXrSettingsPane),
+#endif
 		EndContainer(),
 
 		NWidget(NWID_HORIZONTAL),
@@ -1853,6 +1905,17 @@ void ShowGameOptions()
 	CloseWindowByClass(WC_GAME_OPTIONS);
 	new GameOptionsWindow(_game_options_desc);
 }
+
+#ifdef WITH_XR_QUEST
+/** Open the game options on the VR tab (menu button of the left controller). */
+void ShowGameOptionsXrTab()
+{
+	GameOptionsWindow::active_tab = WID_GO_TAB_XR;
+	/* Only the options window itself: an open VR quick menu (same class, own number) stays behind it. */
+	CloseWindowById(WC_GAME_OPTIONS, WN_GAME_OPTIONS_GAME_OPTIONS);
+	new GameOptionsWindow(_game_options_desc);
+}
+#endif
 
 /**
  * Draw [<][>] boxes.

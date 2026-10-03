@@ -73,6 +73,10 @@
 
 #include "dropdown_common_type.h"
 
+#ifdef WITH_XR_QUEST
+#	include "video/xr/xr_config.h"
+#endif
+
 #include "safeguards.h"
 
 
@@ -256,6 +260,7 @@ enum OptionMenuEntries : uint8_t {
 	OME_FULL_DETAILS,
 	OME_TRANSPARENTBUILDINGS,
 	OME_SHOW_STATIONSIGNS,
+	OME_XR_SETTINGS, ///< VR settings (Meta Quest build only).
 };
 
 /**
@@ -280,6 +285,9 @@ static CallBackFunction ToolbarOptionsClick(Window *w)
 		list.push_back(MakeDropDownListStringItem(STR_SETTINGS_MENU_SANDBOX_OPTIONS,      OME_SANDBOX));
 	}
 	list.push_back(MakeDropDownListStringItem(STR_SETTINGS_MENU_TRANSPARENCY_OPTIONS,     OME_TRANSPARENCIES));
+#ifdef WITH_XR_QUEST
+	list.push_back(MakeDropDownListStringItem(STR_SETTINGS_MENU_XR_SETTINGS,              OME_XR_SETTINGS));
+#endif
 	list.push_back(MakeDropDownListDividerItem());
 	list.push_back(MakeDropDownListCheckedItem(HasBit(_display_opt, DO_SHOW_TOWN_NAMES), STR_SETTINGS_MENU_TOWN_NAMES_DISPLAYED, OME_SHOW_TOWNNAMES));
 	list.push_back(MakeDropDownListCheckedItem(HasBit(_display_opt, DO_SHOW_STATION_NAMES), STR_SETTINGS_MENU_STATION_NAMES_DISPLAYED, OME_SHOW_STATIONNAMES));
@@ -316,6 +324,9 @@ static CallBackFunction MenuClickSettings(int index)
 		case OME_NEWGRFSETTINGS:       ShowNewGRFSettings(!_networking && _settings_client.gui.UserIsAllowedToChangeNewGRFs(), true, true, _grfconfig); return CBF_NONE;
 		case OME_SANDBOX:              ShowCheatWindow();                               break;
 		case OME_TRANSPARENCIES:       ShowTransparencyToolbar();                       break;
+#ifdef WITH_XR_QUEST
+		case OME_XR_SETTINGS:          ShowXrSettings();                                return CBF_NONE;
+#endif
 
 		case OME_SHOW_TOWNNAMES:       ToggleBit(_display_opt, DO_SHOW_TOWN_NAMES);     break;
 		case OME_SHOW_STATIONNAMES:    ToggleBit(_display_opt, DO_SHOW_STATION_NAMES);  break;
