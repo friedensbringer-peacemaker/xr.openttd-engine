@@ -37,6 +37,7 @@
 #include "xr_gl.h"
 #include "xr_input.h"
 #include "xr_panel.h"
+#include "xr_pointer_offset.h"
 
 #define XR_USE_PLATFORM_ANDROID
 #define XR_USE_GRAPHICS_API_OPENGL_ES
@@ -1024,8 +1025,11 @@ void VideoDriver_XR::ProcessControllers()
 			s.ray_end = s.ToWorld(px, (.5f - s.smooth_v) * s.panel_width * s.Aspect(), pz);
 			s.ray_end = {s.ray_end.x - dir.x * .002f, s.ray_end.y - dir.y * .002f, s.ray_end.z - dir.z * .002f};
 
-			const int x = std::clamp(static_cast<int>(s.smooth_u * s.width), 0, s.width - 1);
-			const int y = std::clamp(static_cast<int>(s.smooth_v * s.height), 0, s.height - 1);
+			/* Pointer offset from the VR tab: the game arrow is shifted against the laser (ray end stays on the hit). */
+			const float game_u = ptroff::apply(s.smooth_u, ptroff::stepsToPercent(cfg.pointer_offset_x));
+			const float game_v = ptroff::apply(s.smooth_v, ptroff::stepsToPercent(cfg.pointer_offset_y));
+			const int x = std::clamp(static_cast<int>(game_u * s.width), 0, s.width - 1);
+			const int y = std::clamp(static_cast<int>(game_v * s.height), 0, s.height - 1);
 			_cursor.in_window = true;
 			if (_cursor.fix_at) {
 				/*

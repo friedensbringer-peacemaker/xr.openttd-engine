@@ -23,6 +23,8 @@ struct XrConfig {
 	int ray_color = 0;             ///< 0: white, 1: grey, 2: dark, 3: amber.
 	int marker_size = 1;           ///< 0: small, 1: medium, 2: large, 3: off.
 	int cursor_size = 2;           ///< Mouse arrow of the game: 0: off, 1: small, 2: normal, 3: large.
+	int pointer_offset_x = 0;      ///< Game mouse vs. laser in 0.25 % steps of the image width, -60..60 (+ = right), see xr_pointer_offset.h.
+	int pointer_offset_y = 0;      ///< Same for the image height (+ = down).
 
 	/* Screen */
 	int panel_width_mm = 2000;     ///< Arc length of the screen.

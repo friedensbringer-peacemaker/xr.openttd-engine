@@ -464,6 +464,8 @@ STR_XR_PANEL_WIDTH                                              :Bildschirmbreit
 STR_XR_DISTANCE                                                 :Abstand
 STR_XR_HEIGHT                                                   :Höhe
 STR_XR_CURSOR                                                   :Mauspfeil
+STR_XR_POINTER_OFFSET_X                                         :Zeiger waagerecht
+STR_XR_POINTER_OFFSET_Y                                         :Zeiger senkrecht
 STR_XR_NORMAL                                                   :Normal
 STR_XR_METRES                                                   :{DECIMAL} m
 STR_XR_CENTIMETRES                                              :{NUM} cm
@@ -499,6 +501,8 @@ STR_XR_QUIT                                                     :{RED}Beenden
 STR_XR_QUIT_ARMED                                               :{WHITE}Sicher? Nochmal klicken
 STR_XR_CLOSE                                                    :Schließen
 STR_XR_PERCENT                                                  :{NUM} %
+STR_XR_OFFSET_PLUS                                              :+{DECIMAL} %
+STR_XR_OFFSET_MINUS                                             :-{DECIMAL} %
 STR_XR_TIMES                                                    :{NUM}×
 STR_XR_OFF                                                      :Aus
 STR_XR_ON                                                       :An

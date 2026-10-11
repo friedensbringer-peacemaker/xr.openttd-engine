@@ -17,6 +17,7 @@
 #include "../../dropdown_type.h"
 #include "xr_config.h"
 #include "xr_settings_gui.h"
+#include "xr_pointer_offset.h"
 #include "../../openttd.h"
 #include "../../command_func.h"
 #include "../../misc_cmd.h"
@@ -52,6 +53,8 @@ static StringID XrLabel(WidgetID widget)
 		case WID_XRS_PASSTHROUGH: return STR_XR_PASSTHROUGH;
 		case WID_XRS_POINTER_HAND: return STR_XR_POINTER_HAND;
 		case WID_XRS_CURSOR: return STR_XR_CURSOR;
+		case WID_XRS_OFFSET_X: return STR_XR_POINTER_OFFSET_X;
+		case WID_XRS_OFFSET_Y: return STR_XR_POINTER_OFFSET_Y;
 		case WID_XRS_SMOOTHING: return STR_XR_SMOOTHING;
 		case WID_XRS_STABILISATION: return STR_XR_STABILISATION;
 		case WID_XRS_HAPTICS: return STR_XR_HAPTICS;
@@ -197,8 +200,30 @@ static constexpr Colours XR_BACKGROUND = COLOUR_MAUVE;
 static constexpr Colours XR_BUTTON = COLOUR_YELLOW;
 static constexpr TextColour XR_FRAME = TC_ORANGE;
 
+/** Pointer offset as shown in the menu: "0", "+1,25 %", "-0,50 %" (decimal separator of the language). */
+static std::string XrOffsetText(int steps)
+{
+	switch (ptroff::displaySign(steps)) {
+		case 0: return "0";
+		case 1: return GetString(STR_XR_OFFSET_PLUS, ptroff::displayHundredths(steps), 2);
+		default: return GetString(STR_XR_OFFSET_MINUS, ptroff::displayHundredths(steps), 2);
+	}
+}
+
+/** Stored value of a pointer offset row, nullptr for other widgets. */
+static int *XrOffsetValue(WidgetID widget)
+{
+	XrConfig &c = GetXrConfig();
+	switch (widget) {
+		case WID_XRS_OFFSET_X: return &c.pointer_offset_x;
+		case WID_XRS_OFFSET_Y: return &c.pointer_offset_y;
+		default: return nullptr;
+	}
+}
+
 std::optional<std::string> XrSettingsWidgetString(WidgetID widget)
 {
+	if (const int *offset = XrOffsetValue(widget); offset != nullptr) return GetString(XrLabel(widget)) + ": " + XrOffsetText(*offset);
 	/* Each setting is one wide button "Label: value" – large target for the ray, nothing to misalign. */
 	const std::vector<std::string> choices = XrChoices(widget);
 	if (choices.empty()) return std::nullopt;
@@ -220,6 +245,11 @@ void XrSettingsUpdateSize(WidgetID widget, Dimension &size, const Dimension &pad
 	if (label_id == INVALID_STRING_ID) return;
 	/* Wide enough for the label with the longest choice, plus the dropdown arrow. */
 	const std::string label = GetString(label_id) + ": ";
+	if (XrOffsetValue(widget) != nullptr) {
+		/* Room for the widest value, so the row does not change size while stepping. */
+		size.width = std::max(size.width, GetStringBoundingBox(label + XrOffsetText(-ptroff::kMaxSteps)).width + padding.width);
+		return;
+	}
 	for (const std::string &choice : XrChoices(widget)) {
 		const uint width = GetStringBoundingBox(label + choice).width + padding.width + GetCharacterHeight(FS_NORMAL) * 2;
 		size.width = std::max(size.width, width);
@@ -229,6 +259,34 @@ void XrSettingsUpdateSize(WidgetID widget, Dimension &size, const Dimension &pad
 void XrSettingsDraw(const Rect &r, WidgetID widget)
 {
 	if (widget == WID_XRS_HELP) DrawStringMultiLine(r, STR_XR_CONTROLS_HELP, TC_WHITE);
+}
+
+/** Held < > button of the pointer offset rows. */
+static ptroff::HoldRepeat _xr_offset_repeat;
+
+/** One 0.25 % step of a pointer offset button (< = left/up, > = right/down); false at the limit. */
+static bool XrStepOffset(WidgetID button)
+{
+	int &offset = *XrOffsetValue(button <= WID_XRS_OFFSET_X_INC ? WID_XRS_OFFSET_X : WID_XRS_OFFSET_Y);
+	const int step = (button == WID_XRS_OFFSET_X_INC || button == WID_XRS_OFFSET_Y_INC) ? 1 : -1;
+	const int before = offset;
+	offset = ptroff::percentToSteps(ptroff::stepPercent(ptroff::stepsToPercent(offset), step));
+	return offset != before;
+}
+
+void XrSettingsRealtimeTick(Window *w, uint delta_ms)
+{
+	if (!_xr_offset_repeat.active()) return;
+	const WidgetID button = _xr_offset_repeat.button;
+	/* Repeat only while the trigger stays down on the same button (released, moved off, other tab: stop). */
+	const bool held = _left_button_down && GetWidgetFromPos(w, _cursor.pos.x - w->left, _cursor.pos.y - w->top) == button;
+	bool changed = false;
+	for (int i = _xr_offset_repeat.advance(held, delta_ms); i > 0; --i) changed |= XrStepOffset(button);
+	if (!changed) return;
+	w->HandleButtonClick(button); // keep the button visibly pressed while repeating
+	GetXrConfig().haptic_request++;
+	XrConfigSave();
+	w->SetDirty();
 }
 
 void XrSettingsClick(Window *w, WidgetID widget)
@@ -243,6 +301,15 @@ void XrSettingsClick(Window *w, WidgetID widget)
 		case WID_XRS_CLOSE:
 			w->Close();
 			return;
+		case WID_XRS_OFFSET_X_DEC:
+		case WID_XRS_OFFSET_X_INC:
+		case WID_XRS_OFFSET_Y_DEC:
+		case WID_XRS_OFFSET_Y_INC:
+			/* One step per click; holding the trigger repeats (XrSettingsRealtimeTick). */
+			XrStepOffset(widget);
+			XrConfigSave();
+			_xr_offset_repeat.start(widget);
+			return;
 		default: break;
 	}
 	DropDownList list = XrDropDownList(widget);
@@ -256,6 +323,9 @@ void XrSettingsDropdownSelect(WidgetID widget, int index)
 
 /** One setting: a full-width dropdown button showing "Label: value". */
 #define XR_ROW(widget) NWidget(WWT_DROPDOWN, XR_BUTTON, widget), SetFill(1, 0), SetResize(1, 0)
+
+/** One setting changed in steps: < "Label: value" >. */
+#define XR_STEP_ROW(value, dec, inc) 	NWidget(NWID_HORIZONTAL), SetPIP(0, WidgetDimensions::unscaled.hsep_normal, 0), 		NWidget(WWT_PUSHARROWBTN, XR_BUTTON, dec), SetArrowWidgetTypeTip(AWV_DECREASE), SetMinimalSize(24, 14), SetFill(0, 1), 		NWidget(WWT_TEXT, INVALID_COLOUR, value), SetTextStyle(TC_WHITE), SetAlignment(SA_CENTER), SetFill(1, 1), SetResize(1, 0), 		NWidget(WWT_PUSHARROWBTN, XR_BUTTON, inc), SetArrowWidgetTypeTip(AWV_INCREASE), SetMinimalSize(24, 14), SetFill(0, 1), 	EndContainer()
 
 static constexpr std::initializer_list<NWidgetPart> _nested_xr_settings_pane = {
 	NWidget(NWID_HORIZONTAL), SetPadding(WidgetDimensions::unscaled.sparse_resize), SetPIP(0, WidgetDimensions::unscaled.hsep_wide, 0),
@@ -278,6 +348,8 @@ static constexpr std::initializer_list<NWidgetPart> _nested_xr_settings_pane = {
 				XR_ROW(WID_XRS_MAP_SPEED),
 				XR_ROW(WID_XRS_ZOOM_DIRECTION),
 				XR_ROW(WID_XRS_SMART_SCROLL),
+				/* In this column, so the pointer offset rows fit at 300 % interface size (1920x1080). */
+				XR_ROW(WID_XRS_HAPTICS),
 			EndContainer(),
 			NWidget(NWID_SPACER), SetFill(1, 1), SetResize(1, 1),
 		EndContainer(),
@@ -285,10 +357,11 @@ static constexpr std::initializer_list<NWidgetPart> _nested_xr_settings_pane = {
 		NWidget(NWID_VERTICAL), SetPIP(0, WidgetDimensions::unscaled.vsep_wide, 0),
 			NWidget(WWT_FRAME, XR_BACKGROUND), SetStringTip(STR_XR_FRAME_POINTER), SetTextStyle(XR_FRAME), SetPIP(0, WidgetDimensions::unscaled.vsep_normal, 0),
 				XR_ROW(WID_XRS_CURSOR),
+				XR_STEP_ROW(WID_XRS_OFFSET_X, WID_XRS_OFFSET_X_DEC, WID_XRS_OFFSET_X_INC),
+				XR_STEP_ROW(WID_XRS_OFFSET_Y, WID_XRS_OFFSET_Y_DEC, WID_XRS_OFFSET_Y_INC),
 				XR_ROW(WID_XRS_POINTER_HAND),
 				XR_ROW(WID_XRS_SMOOTHING),
 				XR_ROW(WID_XRS_STABILISATION),
-				XR_ROW(WID_XRS_HAPTICS),
 				XR_ROW(WID_XRS_RAY_WIDTH),
 				XR_ROW(WID_XRS_RAY_COLOUR),
 				XR_ROW(WID_XRS_MARKER),
@@ -306,6 +379,7 @@ static constexpr std::initializer_list<NWidgetPart> _nested_xr_settings_pane = {
 };
 
 #undef XR_ROW
+#undef XR_STEP_ROW
 
 std::unique_ptr<NWidgetBase> MakeXrSettingsPane()
 {

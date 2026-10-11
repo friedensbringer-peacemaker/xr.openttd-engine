@@ -50,6 +50,12 @@ enum XrSettingsWidgets : WidgetID {
 	WID_XRS_MAP_SPEED,
 	WID_XRS_ZOOM_DIRECTION,
 	WID_XRS_SMART_SCROLL,
+	WID_XRS_OFFSET_X,      ///< "Pointer horizontal: +1.25 %" between the < > buttons below.
+	WID_XRS_OFFSET_X_DEC,
+	WID_XRS_OFFSET_X_INC,
+	WID_XRS_OFFSET_Y,
+	WID_XRS_OFFSET_Y_DEC,
+	WID_XRS_OFFSET_Y_INC,
 	WID_XRS_CLOSE,
 	WID_XRS_HELP,
 };
@@ -62,6 +68,7 @@ void XrSettingsUpdateSize(WidgetID widget, Dimension &size, const Dimension &pad
 void XrSettingsDraw(const Rect &r, WidgetID widget);
 void XrSettingsClick(Window *w, WidgetID widget);
 void XrSettingsDropdownSelect(WidgetID widget, int index);
+void XrSettingsRealtimeTick(Window *w, uint delta_ms);
 
 /* VR quick menu (left menu button), see xr_settings_gui.cpp. */
 void ShowXrQuickMenu();

@@ -1432,6 +1432,13 @@ struct GameOptionsWindow : Window {
 		this->SetDirty();
 	}
 
+#ifdef WITH_XR_QUEST
+	void OnRealtimeTick(uint delta_ms) override
+	{
+		XrSettingsRealtimeTick(this, delta_ms); // hold-to-repeat of the VR tab's < > buttons
+	}
+#endif
+
 	void OnMouseLoop() override
 	{
 		if (_left_button_down || !this->gui_scale_changed) return;

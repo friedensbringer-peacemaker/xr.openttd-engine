@@ -9,6 +9,7 @@
 
 #include "../../stdafx.h"
 #include "xr_config.h"
+#include "xr_pointer_offset.h"
 
 #include <algorithm>
 #include <charconv>
@@ -48,6 +49,8 @@ static const XrConfigItem _xr_config_items[] = {
 	{"ray_color", &_xr_config.ray_color, nullptr, 0, 3},
 	{"marker_size", &_xr_config.marker_size, nullptr, 0, 3},
 	{"cursor_size", &_xr_config.cursor_size, nullptr, 0, 3},
+	{"pointer_offset_x", &_xr_config.pointer_offset_x, nullptr, -ptroff::kMaxSteps, ptroff::kMaxSteps},
+	{"pointer_offset_y", &_xr_config.pointer_offset_y, nullptr, -ptroff::kMaxSteps, ptroff::kMaxSteps},
 	{"panel_width_mm", &_xr_config.panel_width_mm, nullptr, 1000, 3200},
 	{"distance_mm", &_xr_config.distance_mm, nullptr, 700, 3500},
 	{"height_mm", &_xr_config.height_mm, nullptr, -600, 600},
